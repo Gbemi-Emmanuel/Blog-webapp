@@ -1,12 +1,13 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import React, { useState } from 'react'
-import { Alert, Button, Label, TextInput } from 'flowbite-react';
+import { Alert, Button, Label, TextInput, Spinner } from 'flowbite-react';
 
 
 const SignUp = () => {
   const [formData, setFormData] = useState ({});
   const [errorMessage, setErrorMessge] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const handleChange = (e) => {
     setFormData({...formData, [e.target.id]: e.target.value.trim() });
   };
@@ -16,7 +17,8 @@ const SignUp = () => {
       return setErrorMessge('Please fill out all fields');
     }
     try {
-      
+      setLoading(true);
+      setErrorMessge(null);
       const res = await fetch('/api/auth/signup',{
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -26,8 +28,13 @@ const SignUp = () => {
       if (data.success === false) {
         return setErrorMessge(data.message)
       }
+      setLoading(false);
+      if ( res.ok ) {
+        navigate('/sign-in');
+      }
     } catch (error) {
-      setErrorMessge(data.message)
+      setErrorMessge(data.message);
+      setLoading(false);
     }
   }
 
@@ -69,8 +76,16 @@ const SignUp = () => {
               placeholder='Password'
               id='password' onChange={handleChange}/>
             </div>
-            <Button gradientDuoTone='purpleToPink' type='submit'>
-              Sign Up
+            <Button gradientDuoTone='purpleToPink' type='submit' disabled={loading}>
+             {
+              loading ? 
+              (
+              <>
+                <Spinner size='sm' />
+                <span className='pl-3'>Loading...</span>
+              </>
+              ) :'Sign Up'
+             }
             </Button>
           </form>
           <div className="flex gap-2 text-sm mt-5">
