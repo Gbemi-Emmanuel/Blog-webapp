@@ -1,24 +1,33 @@
 import { Link } from 'react-router-dom';
 import React, { useState } from 'react'
-import { Button, Label, TextInput } from 'flowbite-react';
+import { Alert, Button, Label, TextInput } from 'flowbite-react';
 
 
 const SignUp = () => {
-  const [formData, setFormData] = useState ({})
-  const handleChange = () => {
-    setFormData({...formData, [e.target.id]: e.target.value});
+  const [formData, setFormData] = useState ({});
+  const [errorMessage, setErrorMessge] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const handleChange = (e) => {
+    setFormData({...formData, [e.target.id]: e.target.value.trim() });
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.username || !formData.email || !formData.password) {
+      return setErrorMessge('Please fill out all fields');
+    }
     try {
+      
       const res = await fetch('/api/auth/signup',{
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(formData), 
       });
       const data = await res.json();
+      if (data.success === false) {
+        return setErrorMessge(data.message)
+      }
     } catch (error) {
-      
+      setErrorMessge(data.message)
     }
   }
 
@@ -51,7 +60,7 @@ const SignUp = () => {
               <TextInput
               type='email'
               placeholder='name@company.com'
-              id='Email'onChange={handleChange} />
+              id='email'onChange={handleChange} />
             </div>
             <div>
               <Label value='Your password' />
@@ -70,6 +79,13 @@ const SignUp = () => {
               Sign In
             </Link>
           </div>
+          {
+            errorMessage && (
+              <Alert className='mt-4' color='failure'>
+                {errorMessage}
+              </Alert>
+            )
+          }
         </div>
       </div>
     </div>
