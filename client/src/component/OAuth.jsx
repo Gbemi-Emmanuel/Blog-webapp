@@ -13,7 +13,7 @@ const OAuth = () => {
         const dispatch = useDispatch();
         const navigate = useNavigate();
         const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({ prompt: 'select_account' })
+        provider.setCustomParameters({ prompt: 'select_account' });
         try {
             const resultFromGoogle = await signInWithPopup(auth, provider)
             const res = await fetch('/api/auth/google', {
